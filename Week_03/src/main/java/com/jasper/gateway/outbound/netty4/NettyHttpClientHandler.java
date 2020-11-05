@@ -53,11 +53,11 @@ public class NettyHttpClientHandler extends ChannelInboundHandlerAdapter {
             result = buf.toString(CharsetUtil.UTF_8);
             log.info("result = [{}]", result);
         }
-        serverCtx.writeAndFlush(msg);
-        msgProcess(msg);
+//        serverCtx.writeAndFlush(msg);
+        msgProcess(msg,ctx);
     }
 
-    private void msgProcess(Object msg) {
+    private void msgProcess(Object msg,ChannelHandlerContext ctx) {
         String result;
         log.info("response = [{}]", msg);
         if (msg instanceof FullHttpResponse) {
@@ -69,6 +69,13 @@ public class NettyHttpClientHandler extends ChannelInboundHandlerAdapter {
                 httpInboundResponse.handleResponse(serverCtx, result);
             } catch (Exception e) {
                 log.error("handleResponse failed", e);
+            }finally {
+                ChannelFuture channelFuture = ctx.channel().close();
+                try {
+                    channelFuture.channel().closeFuture().sync();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

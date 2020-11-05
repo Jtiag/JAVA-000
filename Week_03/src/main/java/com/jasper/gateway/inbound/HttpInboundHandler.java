@@ -1,6 +1,7 @@
 package com.jasper.gateway.inbound;
 
 import com.jasper.gateway.outbound.OutboundHandler;
+import com.jasper.gateway.outbound.httpclient4.HttpOutboundHandler;
 import com.jasper.gateway.outbound.netty4.NettyHttpClientOutboundHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -11,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HttpInboundHandler extends ChannelInboundHandlerAdapter {
     private final String proxyServer;
-    private NettyHttpClientOutboundHandler handler;
+    private OutboundHandler handler;
 
     public HttpInboundHandler(String proxyServer) {
         this.proxyServer = proxyServer;
@@ -24,17 +25,9 @@ public class HttpInboundHandler extends ChannelInboundHandlerAdapter {
         /*if (msg instanceof FullHttpRequest)*/ {
             try {
                 FullHttpRequest fullRequest = (FullHttpRequest) msg;
+                String nio = fullRequest.headers().get("nio");
+                log.info("get header nio = [{}]",nio);
                 handler.handle(msg, serverCtx);
-//                String[] splitBackend = proxyServer.split("//");
-//                String backendInfo = splitBackend[1];
-//                String[] backendIpAndPort = backendInfo.split(":");
-//                if (backendIpAndPort.length != 2) {
-//                    log.error("proxy url is wrong");
-//                    return;
-//                }
-//                String proxyIp = backendIpAndPort[0];
-//                int port = Integer.parseInt(backendIpAndPort[1]);
-//                handler.connect(proxyIp,port,msg,serverCtx);
             } catch (Exception e) {
                 log.error("some error happened", e);
             } finally {
