@@ -2,6 +2,7 @@ package run;
 
 import caller.MyCaller;
 import caller.MyThreadFactory;
+import domain.Result;
 
 import java.util.concurrent.*;
 
@@ -22,6 +23,8 @@ public class Homework03 {
                 Runtime.getRuntime().availableProcessors() * 2,
                 1000, TimeUnit.MICROSECONDS,
                 new ArrayBlockingQueue<>(100), new MyThreadFactory());
+        // 方法零 使用Runnable + submit(R,r)
+//        sum = m0(threadPoolExecutor);
         // 方法一 使用Callable future.get()阻塞获取
 //        sum = m1(threadPoolExecutor);
         // 方法二 使用 futureTask
@@ -35,7 +38,9 @@ public class Homework03 {
         // 方法六 使用CompletableFuture
 //        sum = m6();
         // 方法七 使用wait notify机制
-        sum = m7(threadPoolExecutor);
+//        sum = m7(threadPoolExecutor);
+        // 方法八 使用join
+        sum = m8();
         // 确保  拿到result 并输出
         System.out.println("异步计算结果为：" + sum);
 
@@ -45,17 +50,20 @@ public class Homework03 {
         System.out.println("退出主线程");
     }
 
-    private static int m6() {
+    private static int m8() {
         final int[] sum = {0};
-        CompletableFuture<Void> task = CompletableFuture.runAsync(() -> {
+        Thread thread = new Thread(() -> {
             sum[0] = sum();
-            System.out.println(Thread.currentThread().getName() + " 子线程处理完成");
+            System.out.println("子线程执行完毕");
         });
-
-        CompletableFuture<Void> allOf = CompletableFuture.allOf(task);
-        System.out.println(Thread.currentThread().getName() + " all of 阻塞开始");
-        allOf.join();
-        System.out.println(Thread.currentThread().getName() + " all of 阻塞结束");
+        thread.start();
+        try {
+            System.out.println("等待子线程执行完毕");
+            thread.join();
+            System.out.println("主线程开始执行");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return sum[0];
     }
 
@@ -80,6 +88,20 @@ public class Homework03 {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        return sum[0];
+    }
+
+    private static int m6() {
+        final int[] sum = {0};
+        CompletableFuture<Void> task = CompletableFuture.runAsync(() -> {
+            sum[0] = sum();
+            System.out.println(Thread.currentThread().getName() + " 子线程处理完成");
+        });
+
+        CompletableFuture<Void> allOf = CompletableFuture.allOf(task);
+        System.out.println(Thread.currentThread().getName() + " all of 阻塞开始");
+        allOf.join();
+        System.out.println(Thread.currentThread().getName() + " all of 阻塞结束");
         return sum[0];
     }
 
@@ -183,6 +205,21 @@ public class Homework03 {
             e.printStackTrace();
         }
         return sum;
+    }
+
+    private static int m0(ThreadPoolExecutor threadPoolExecutor) {
+        Result res = new Result();
+        Result result = new Result();
+        Task task = new Task(result);
+        Future<Result> submit = threadPoolExecutor.submit(task, result);
+        try {
+            res = submit.get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return res.getResult();
     }
 
     public static int sum() {
