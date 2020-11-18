@@ -1,8 +1,4 @@
-package com.spring.jasper.service;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Service;
+package com.spring.one.service;
 
 /**
  * @author jasper

@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.jasper.config.KlassConfiguration,com.jasper.config.StudentConfiguration,com.jasper.config.SchoolConfiguration

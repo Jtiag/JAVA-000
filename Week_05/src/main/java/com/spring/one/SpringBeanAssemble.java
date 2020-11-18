@@ -1,6 +1,6 @@
-package com.spring.jasper;
+package com.spring.one;
 
-import com.spring.jasper.service.BeanService;
+import com.spring.one.service.BeanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -16,7 +16,7 @@ public class SpringBeanAssemble implements CommandLineRunner {
     private BeanService beanService;
 
     public static void main(String[] args) {
-//        SpringBeanAssemble springBeanAssemble = new SpringBeanAssemble();
+//        com.spring.jasper.SpringBeanAssemble springBeanAssemble = new com.spring.jasper.SpringBeanAssemble();
 //        springBeanAssemble.methodBase2Xml();
 //        springBeanAssemble.methodBase2Annotation();
         SpringApplication.run(SpringBeanAssemble.class, args);
@@ -45,7 +45,7 @@ public class SpringBeanAssemble implements CommandLineRunner {
      * 2.在BeanService类上加上 @Service
      */
     private void methodBase2Annotation() {
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("spring/applicationContext.xml");
         BeanService beanService = (BeanService) context.getBean("beanService");
         beanService.sayHello();
     }
@@ -56,7 +56,7 @@ public class SpringBeanAssemble implements CommandLineRunner {
      * 2.去除BeanService类上上的注解@Service
      */
     private void methodBase2Xml() {
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("spring/applicationContext.xml");
         BeanService beanService = (BeanService) context.getBean("beanService");
         beanService.sayHello();
     }
