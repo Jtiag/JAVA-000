@@ -1,16 +1,12 @@
 package com.jasper.jdbc.mvp.helper;
 
 import com.google.common.collect.Lists;
-import com.jasper.jdbc.mvp.helper.config.ConfigurationManager;
-import com.jasper.jdbc.mvp.helper.constants.MysqlConstants;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,24 +16,42 @@ import java.util.List;
 @Slf4j
 @Component
 public class JdbcHelper {
-    static {
-        try {
-            String driver = ConfigurationManager.getProperty(MysqlConstants.JDBC_DRIVER);
-            Class.forName(driver);
-        } catch (Exception e) {
-            log.error("init db driver failed", e);
-        }
-    }
+    @Value("${jdbc.driver}")
+    private String driverName;
+    @Value("${jdbc.pool.size}")
+    private int poolSize;
+    @Value("${jdbc.url}")
+    private String url;
+    @Value("${jdbc.user}")
+    private String user;
+    @Value("${jdbc.password}")
+    private String password;
 
-    private static volatile JdbcHelper instance = null;
-
-    /**
-     * @return JdbcHelper
-     */
     @PostConstruct
-    private static void init() {
+    private void init() {
         log.info("init JdbcHelper....");
-        instance = new JdbcHelper();
+        try {
+            String driver = driverName;
+            Class.forName(driver);
+            log.info("load {} success", driverName);
+            int poolSize = this.poolSize;
+            for (int i = 0; i < poolSize; i++) {
+                String url;
+                String user;
+                String password;
+                url = this.url;
+                user = this.user;
+                password = this.password;
+                try {
+                    Connection conn = DriverManager.getConnection(url, user, password);
+                    datasource.push(conn);
+                } catch (Exception e) {
+                    log.error("create pool failed", e);
+                }
+            }
+        } catch (Exception e) {
+            log.error("load db driver failed", e);
+        }
     }
 
     /**
@@ -46,22 +60,6 @@ public class JdbcHelper {
     private final LinkedList<Connection> datasource = Lists.newLinkedList();
 
     private JdbcHelper() {
-        int datasourceSize = ConfigurationManager.getInteger(
-                MysqlConstants.JDBC_DATASOURCE_SIZE);
-        for (int i = 0; i < datasourceSize; i++) {
-            String url;
-            String user;
-            String password;
-            url = ConfigurationManager.getProperty(MysqlConstants.JDBC_URL);
-            user = ConfigurationManager.getProperty(MysqlConstants.JDBC_USER);
-            password = ConfigurationManager.getProperty(MysqlConstants.JDBC_PASSWORD);
-            try {
-                Connection conn = DriverManager.getConnection(url, user, password);
-                datasource.push(conn);
-            } catch (Exception e) {
-                log.error("create dataSource pool failed", e);
-            }
-        }
     }
 
     public synchronized Connection getConnection() {
@@ -73,6 +71,56 @@ public class JdbcHelper {
             }
         }
         return datasource.poll();
+    }
+
+    /**
+     * insert update query delete
+     *
+     * @param sql
+     */
+    public void execute(final String sql) {
+        Connection conn = null;
+        Statement statement = null;
+        try {
+            conn = getConnection();
+
+            statement = conn.createStatement();
+            statement.execute(sql);
+            log.info("[{}] execute success", sql);
+        } catch (Exception e) {
+            log.error("[{}] execute failed\n{}", sql, e);
+        } finally {
+            if (conn != null) {
+                datasource.push(conn);
+            }
+            close(statement);
+        }
+    }
+
+    /**
+     * query
+     *
+     * @param sql
+     */
+    public void executeQuery(final String sql, QueryCallback queryCallback) {
+        Connection conn = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+        try {
+            conn = getConnection();
+
+            statement = conn.createStatement();
+            resultSet = statement.executeQuery(sql);
+            queryCallback.process(resultSet);
+            log.info("[{}] execute success", sql);
+        } catch (Exception e) {
+            log.error("[{}] execute failed\n{}", sql, e);
+        } finally {
+            if (conn != null) {
+                datasource.push(conn);
+            }
+            close(resultSet, statement);
+        }
     }
 
     /**
@@ -108,7 +156,7 @@ public class JdbcHelper {
             if (conn != null) {
                 datasource.push(conn);
             }
-
+            close(pstmt);
         }
 
         return rtn;
@@ -197,7 +245,7 @@ public class JdbcHelper {
     /**
      * 静态内部类：查询回调接口
      */
-    public static interface QueryCallback {
+    public interface QueryCallback {
 
         /**
          * 处理查询结果
