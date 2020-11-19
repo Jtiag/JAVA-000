@@ -1,4 +1,4 @@
-package com.jasper.jdbc.mvp.domain;
+package com.jasper.jdbc.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

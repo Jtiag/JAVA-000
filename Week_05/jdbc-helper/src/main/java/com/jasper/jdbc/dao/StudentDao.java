@@ -1,6 +1,6 @@
-package com.jasper.jdbc.mvp.dao;
+package com.jasper.jdbc.dao;
 
-import com.jasper.jdbc.mvp.domain.Student;
+import com.jasper.jdbc.domain.Student;
 
 import java.util.List;
 

@@ -1,11 +1,12 @@
 package com.jasper.jdbc;
 
-import com.jasper.jdbc.mvp.domain.Student;
-import com.jasper.jdbc.mvp.service.StudentService;
+import com.jasper.jdbc.domain.Student;
+import com.jasper.jdbc.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 
@@ -37,5 +38,7 @@ public class JdbcApplication implements CommandLineRunner {
         studentService.delete(1);
         stu = studentService.query(1);
         System.out.println(stu);
+
+        System.out.println("===============================");
     }
 }

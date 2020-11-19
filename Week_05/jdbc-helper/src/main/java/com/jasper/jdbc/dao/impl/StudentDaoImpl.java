@@ -1,9 +1,9 @@
-package com.jasper.jdbc.mvp.dao.impl;
+package com.jasper.jdbc.dao.impl;
 
 import com.google.common.collect.Lists;
-import com.jasper.jdbc.mvp.dao.StudentDao;
-import com.jasper.jdbc.mvp.domain.Student;
-import com.jasper.jdbc.mvp.helper.JdbcHelper;
+import com.jasper.jdbc.dao.StudentDao;
+import com.jasper.jdbc.domain.Student;
+import com.jasper.jdbc.helper.JdbcHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

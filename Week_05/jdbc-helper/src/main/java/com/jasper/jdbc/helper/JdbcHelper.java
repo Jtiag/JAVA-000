@@ -1,13 +1,15 @@
-package com.jasper.jdbc.mvp.helper;
+package com.jasper.jdbc.helper;
 
-import com.google.common.collect.Lists;
+import com.jasper.jdbc.pool.DataSourcePool;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import java.sql.*;
-import java.util.LinkedList;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.List;
 
 /**
@@ -16,61 +18,12 @@ import java.util.List;
 @Slf4j
 @Component
 public class JdbcHelper {
-    @Value("${jdbc.driver}")
-    private String driverName;
-    @Value("${jdbc.pool.size}")
-    private int poolSize;
-    @Value("${jdbc.url}")
-    private String url;
-    @Value("${jdbc.user}")
-    private String user;
-    @Value("${jdbc.password}")
-    private String password;
-
-    @PostConstruct
-    private void init() {
-        log.info("init JdbcHelper....");
-        try {
-            String driver = driverName;
-            Class.forName(driver);
-            log.info("load {} success", driverName);
-            int poolSize = this.poolSize;
-            for (int i = 0; i < poolSize; i++) {
-                String url;
-                String user;
-                String password;
-                url = this.url;
-                user = this.user;
-                password = this.password;
-                try {
-                    Connection conn = DriverManager.getConnection(url, user, password);
-                    datasource.push(conn);
-                } catch (Exception e) {
-                    log.error("create pool failed", e);
-                }
-            }
-        } catch (Exception e) {
-            log.error("load db driver failed", e);
-        }
-    }
-
-    /**
-     * 数据库连接池
-     */
-    private final LinkedList<Connection> datasource = Lists.newLinkedList();
+    //    @Qualifier("mySimplePool")
+    @Qualifier("hikariPool")
+    @Autowired()
+    private DataSourcePool dataSourcePool;
 
     private JdbcHelper() {
-    }
-
-    public synchronized Connection getConnection() {
-        while (datasource.size() == 0) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                log.error("", e);
-            }
-        }
-        return datasource.poll();
     }
 
     /**
@@ -82,7 +35,7 @@ public class JdbcHelper {
         Connection conn = null;
         Statement statement = null;
         try {
-            conn = getConnection();
+            conn = dataSourcePool.getConnection();
 
             statement = conn.createStatement();
             statement.execute(sql);
@@ -91,7 +44,7 @@ public class JdbcHelper {
             log.error("[{}] execute failed\n{}", sql, e);
         } finally {
             if (conn != null) {
-                datasource.push(conn);
+                dataSourcePool.close(conn);
             }
             close(statement);
         }
@@ -107,7 +60,7 @@ public class JdbcHelper {
         Statement statement = null;
         ResultSet resultSet = null;
         try {
-            conn = getConnection();
+            conn = dataSourcePool.getConnection();
 
             statement = conn.createStatement();
             resultSet = statement.executeQuery(sql);
@@ -117,7 +70,7 @@ public class JdbcHelper {
             log.error("[{}] execute failed\n{}", sql, e);
         } finally {
             if (conn != null) {
-                datasource.push(conn);
+                dataSourcePool.close(conn);
             }
             close(resultSet, statement);
         }
@@ -136,7 +89,7 @@ public class JdbcHelper {
         PreparedStatement pstmt = null;
 
         try {
-            conn = getConnection();
+            conn = dataSourcePool.getConnection();
             conn.setAutoCommit(false);
 
             pstmt = conn.prepareStatement(sql);
@@ -154,7 +107,7 @@ public class JdbcHelper {
             e.printStackTrace();
         } finally {
             if (conn != null) {
-                datasource.push(conn);
+                dataSourcePool.close(conn);
             }
             close(pstmt);
         }
@@ -176,7 +129,7 @@ public class JdbcHelper {
         ResultSet rs = null;
 
         try {
-            conn = getConnection();
+            conn = dataSourcePool.getConnection();
             pstmt = conn.prepareStatement(sql);
 
             if (params != null && params.length > 0) {
@@ -192,7 +145,7 @@ public class JdbcHelper {
             e.printStackTrace();
         } finally {
             if (conn != null) {
-                datasource.push(conn);
+                dataSourcePool.close(conn);
             }
             close(rs, pstmt);
         }
@@ -217,7 +170,7 @@ public class JdbcHelper {
         PreparedStatement pstmt = null;
 
         try {
-            conn = getConnection();
+            conn = dataSourcePool.getConnection();
             conn.setAutoCommit(false);
             pstmt = conn.prepareStatement(sql);
             if (paramsList != null && paramsList.size() > 0) {
@@ -234,7 +187,7 @@ public class JdbcHelper {
             e.printStackTrace();
         } finally {
             if (conn != null) {
-                datasource.push(conn);
+                dataSourcePool.close(conn);
             }
             close(pstmt);
         }

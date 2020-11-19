@@ -1,7 +1,7 @@
-package com.jasper.jdbc.mvp.service;
+package com.jasper.jdbc.service;
 
-import com.jasper.jdbc.mvp.dao.StudentDao;
-import com.jasper.jdbc.mvp.domain.Student;
+import com.jasper.jdbc.dao.StudentDao;
+import com.jasper.jdbc.domain.Student;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
