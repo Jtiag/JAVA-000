@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--日志级别以及优先级排序: OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE > ALL -->
+<!--status="WARN" :用于设置log4j2自身内部日志的信息输出级别，默认是OFF-->
+<!--monitorInterval="30"  :间隔秒数,自动检测配置文件的变更和重新配置本身-->
+<configuration status="warn" monitorInterval="60" strict="true">
+    <properties>
+        <!--自定义一些常量，之后使用${变量名}引用-->
+        <property name="logPath">./logs</property>
+        <property name="charset">UTF-8</property>
+        <!--自定义的输出格式-->
+        <property name="pattern">%-d{yyyy-MM-dd HH:mm:ss.SSS} %p %X{ip} %t %C %X{requestId} [%L] %m %n</property>
+    </properties>
+    <!--appenders:定义输出内容,输出格式,输出方式,日志保存策略等,常用其下三种标签[console,File,RollingFile]-->
+    <!--Appender可以理解为日志的输出目的地-->
+    <appenders>
+        <!--console :控制台输出的配置-->
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${pattern}" charset="${charset}"/>
+        </Console>
+        <RollingRandomAccessFile name="LOG.SYSTEM" immediateFlush="true" bufferSize="4096"
+                                 fileName="${logPath}/system.log"
+                                 filePattern="${logPath}/system.log.%d{yyyy-MM-dd}.gz"
+                                 ignoreExceptions="false">
+            <!--引用上面自定义的输出格式-->
+            <PatternLayout pattern="${pattern}" charset="${charset}"/>
+            <Filters>
+                <!--ThresholdFilter :日志输出过滤-->
+                <!--level="info" :日志级别,onMatch="ACCEPT" :级别在info之上则接受,onMismatch="DENY" :级别在info之下则拒绝-->
+                <!--与logger、root中定义的日志级别相配合，相当于两个闸门，先判断logger、root的级别，符合了才会用到该filter中的level，此时再进行一次筛选-->
+                <!--                <ThresholdFilter level="TRACE" onMatch="ACCEPT" onMismatch="DENY"/>-->
+                <!--<ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>-->
+                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <!-- Policies :日志滚动策略-->
+            <Policies>
+                <!--<TimeBasedTriggeringPolicy interval="1" modulate="true"/>-->
+                <CronTriggeringPolicy schedule="0 0 0 * * ?" evaluateOnStartup="true"/>
+            </Policies>
+            <!-- DefaultRolloverStrategy属性如不设置，则默认为最多同一文件夹下7个文件-->
+            <DefaultRolloverStrategy>
+                <Delete basePath="${logPath}" maxDepth="2" followLinks="true">
+                    <IfFileName glob="system.log.*.gz"/>
+                    <!--只保留7天，超过则删除-->
+                    <IfLastModified age="7d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+        <RollingRandomAccessFile name="LOG.ERROR" immediateFlush="true" bufferSize="4096"
+                                 fileName="${logPath}/error.log"
+                                 filePattern="${logPath}/error.log.%d{yyyy-MM-dd}.gz"
+                                 ignoreExceptions="false">
+            <PatternLayout pattern="${pattern}" charset="${charset}"/>
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <TimeBasedTriggeringPolicy/>
+            <DefaultRolloverStrategy>
+                <Delete basePath="${logPath}" maxDepth="2" followLinks="true">
+                    <IfFileName glob="error.log.*.gz"/>
+                    <IfLastModified age="7d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+    </appenders>
+
+    <!--然后定义logger，只有定义了logger并引入的appender，appender才会生效-->
+    <loggers>
+        <!--additivity="false"表示在该logger中输出的日志不会再延伸到父层logger。这里如果改为true，则会延伸到Root Logger，遵循Root Logger的配置也输出一次。-->
+        <Logger additivity="false" name="LOG.SYSTEM" level="INFO">
+            <AppenderRef ref="LOG.SYSTEM"/>
+            <AppenderRef ref="LOG.ERROR"/>
+        </Logger>
+        <!--Logger节点用来单独指定日志的形式，name为包路径,比如要为org.apache包下所有日志指定为INFO级别等。 -->
+        <Logger additivity="false" name="org.apache" level="INFO">
+            <AppenderRef ref="console"/>
+        </Logger>
+        <!-- Root节点用来指定项目的根日志，如果没有单独指定Logger，那么就会默认使用该Root日志输出 -->
+        <Root level="INFO" includeLocation="true">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="LOG.SYSTEM"/>
+            <AppenderRef ref="LOG.ERROR"/>
+        </Root>
+    </loggers>
+</configuration>

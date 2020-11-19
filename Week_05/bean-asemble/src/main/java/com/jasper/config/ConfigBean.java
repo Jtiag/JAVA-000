@@ -1,6 +1,6 @@
-package com.spring.one.config;
+package com.jasper.config;
 
-import com.spring.one.service.BeanService;
+import com.jasper.service.BeanService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
