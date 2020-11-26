@@ -51,7 +51,7 @@ public class HttpClientService {
                 .setConnectionManager(cm)
                 .setConnectionManagerShared(true)
                 .build();
-        log.info("http client create success");
+        System.out.println("http client create success");
     }
 
     /**
@@ -198,6 +198,7 @@ public class HttpClientService {
 
     public static void main(String[] args) {
         HttpClientService httpClientService = new HttpClientService();
+        httpClientService.initHttpClient();
         Map<String, String> request = httpClientService.getRequest("http://localhost:8801/test");
         System.out.println();
     }

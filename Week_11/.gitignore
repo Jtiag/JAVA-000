@@ -1,0 +1,43 @@
+/Week_01/out/
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**
+!**/src/test/**
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+
+### VS Code ###
+.vscode/
+/.mvn/
+/logs/
+/src/main/resources/static/*
+/deploy/front-end/too-web/
+/mvnw
+/mvnw.cmd
+/package-lock.json
+dataxjson/
+job/
+test/
+deploy/
