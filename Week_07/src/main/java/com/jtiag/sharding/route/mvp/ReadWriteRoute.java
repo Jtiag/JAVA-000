@@ -1,4 +1,4 @@
-package com.jtiag.sharding.mvp.route;
+package com.jtiag.sharding.route.mvp;
 
 /**
  * 主从同步有：异步复制、同步复制、半同步复制
@@ -11,5 +11,7 @@ package com.jtiag.sharding.mvp.route;
  * @author jasper
  */
 public interface ReadWriteRoute {
+    // 更删改操作
 
+    // 查询操作
 }
