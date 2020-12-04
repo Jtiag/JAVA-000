@@ -46,4 +46,30 @@ public class UserService {
             log.error("", e);
         }
     }
+
+    public User findUserById4Sharding(int id) {
+        User user = null;
+        try {
+            user = userDaoMaster.findUserById(id);
+        } catch (Exception e) {
+            log.error("", e);
+        }
+        return user;
+    }
+
+    public void saveUser4Sharding(User user) {
+        try {
+            userDaoMaster.save(user);
+        } catch (Exception e) {
+            log.error("", e);
+        }
+    }
+
+    public void updateMobileById4Sharding(int id, String mobile) {
+        try {
+            userDaoMaster.updateMobileById(id, mobile);
+        } catch (Exception e) {
+            log.error("", e);
+        }
+    }
 }
