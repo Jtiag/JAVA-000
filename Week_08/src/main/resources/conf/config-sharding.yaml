@@ -1,0 +1,101 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+######################################################################################################
+#
+# Here you can configure the rules for the proxy.
+# This example is configuration of sharding rule.
+#
+######################################################################################################
+
+# 逻辑数据源名称
+schemaName: sharding_db
+
+dataSources: # 数据源配置，可配置多个 <data-source-name>
+  ds_0:
+    url: jdbc:mysql://127.0.0.1:3333/demo_ds_0?serverTimezone=UTC&useSSL=false&characterEncoding=UTF-8
+    username: root
+    password: 123456
+    connectionTimeoutMilliseconds: 30000
+    idleTimeoutMilliseconds: 60000
+    maxLifetimeMilliseconds: 1800000
+    maxPoolSize: 10
+    minPoolSize: 1
+    maintenanceIntervalMilliseconds: 30000
+  ds_1:
+    url: jdbc:mysql://127.0.0.1:3334/demo_ds_1?serverTimezone=UTC&useSSL=false&characterEncoding=UTF-8
+    username: root
+    password: 123456
+    connectionTimeoutMilliseconds: 30000
+    idleTimeoutMilliseconds: 60000
+    maxLifetimeMilliseconds: 1800000
+    maxPoolSize: 10
+    minPoolSize: 1
+    maintenanceIntervalMilliseconds: 30000
+
+rules:
+  - !SHARDING
+    tables:
+      t_order_info:
+        actualDataNodes: ds_${0..1}.t_order_info_${0..15}
+        #        databaseStrategy: # 分库策略，缺省表示使用默认分库策略，以下的分片策略只能选其一
+        #          standard: # 用于单分片键的标准分片场景
+        #            shardingColumn: user_id # 分片列名称
+        #            shardingAlgorithmName: database_inline # 分片算法名称
+        #          complex: # 用于多分片键的复合分片场景
+        #            shardingColumns: #分片列名称，多个列以逗号分隔
+        #            shardingAlgorithmName: # 分片算法名称
+        #          hint: # Hint 分片策略
+        #            shardingAlgorithmName: # 分片算法名称
+        #          none: # 不分片
+        tableStrategy:
+          standard:
+            shardingColumn: id
+            shardingAlgorithmName: t_order_info_inline
+    #      keyGenerateStrategy: # 分布式序列策略
+    #        column: id  # 自增列名称，缺省表示不使用自增主键生成器
+    #        keyGeneratorName: snowflake # 分布式序列算法名称
+#    bindingTables:
+#      - t_order_info
+    #  broadcastTables: # 广播表规则列表
+    #    - t_address
+    defaultDatabaseStrategy:
+      standard:
+        shardingColumn: user_id
+        shardingAlgorithmName: database_inline
+    defaultTableStrategy:
+      none:
+    # 分片算法配置
+    shardingAlgorithms:
+      database_inline:
+        type: INLINE
+        props:
+          algorithm-expression: ds_${user_id % 2}
+      t_order_info_inline:
+        type: INLINE
+        props:
+          algorithm-expression: t_order_info${id % 2}
+    #    t_order_item_inline:
+    #      type: INLINE
+    #      props:
+    #        algorithm-expression: t_order_item_${order_id % 2}
+    # 分布式序列算法配置
+#    keyGenerators:
+#      snowflake:
+#        type: SNOWFLAKE
+#        props:
+#          worker-id: 123
