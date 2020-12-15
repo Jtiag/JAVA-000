@@ -16,9 +16,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.jasper</groupId>
-    <artifactId>work5</artifactId>
+    <artifactId>week_05</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>work5</name>
+    <name>week_05</name>
     <description>week5 work</description>
 
     <properties>

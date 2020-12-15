@@ -1,4 +1,4 @@
-package com.train.jitag.domain;
+package com.jitag.trans.domain;
 
 import lombok.Data;
 

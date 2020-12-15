@@ -1,4 +1,4 @@
-package com.jasper.jdbc.domain;
+package com.jitag.sharding.domain;
 
 import lombok.Data;
 
@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 @Data
 public class OrderInfo {
     private long id;
+    private long orderId;
     private BigDecimal totalAmount;
     private long userId;
     private int orderStatus;

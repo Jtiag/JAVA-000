@@ -1,14 +1,14 @@
-package com.train.jitag.dao;
+package com.jitag.trans.dao;
 
 
-import com.train.jitag.domain.OrderInfo;
+import com.jitag.trans.domain.OrderInfo;
 import org.apache.ibatis.annotations.*;
 
 /**
  * @author jasper
  */
 @Mapper
-public interface OrderInfoDao {
+public interface InventoryDao {
     /**
      * 根据id查询
      *

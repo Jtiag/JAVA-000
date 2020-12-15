@@ -18,8 +18,8 @@ import java.util.List;
 @Slf4j
 @Component
 public class JdbcHelper {
-    //    @Qualifier("mySimplePool")
-    @Qualifier("hikariPool")
+        @Qualifier("mySimplePool")
+//    @Qualifier("hikariPool")
     @Autowired()
     private DataSourcePool dataSourcePool;
 
@@ -183,6 +183,7 @@ public class JdbcHelper {
             }
             rtn = pstmt.executeBatch();
             conn.commit();
+            log.info("run sql [{}] success",sql);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

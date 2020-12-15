@@ -1,5 +1,5 @@
-package com.train.jitag;
-import com.train.jitag.service.OrderService;
+package com.jitag.sharding;
+import com.jitag.sharding.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;

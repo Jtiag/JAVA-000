@@ -1,10 +1,14 @@
-package com.train.jitag.service;
+package com.jitag.trans.service;
 
-import com.train.jitag.dao.OrderInfoDao;
-import com.train.jitag.domain.OrderInfo;
+import com.jitag.trans.dao.InventoryDao;
+import com.jitag.trans.dao.OrderInfoDao;
+import com.jitag.trans.domain.OrderInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shardingsphere.transaction.annotation.ShardingTransactionType;
+import org.apache.shardingsphere.transaction.core.TransactionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -17,7 +21,8 @@ import java.sql.Timestamp;
 public class OrderService {
     @Autowired
     private OrderInfoDao orderInfoDao;
-
+    @Autowired
+    private InventoryDao inventoryDao;
     public OrderInfo findUserById(int id) {
         OrderInfo user = null;
         try {
@@ -43,7 +48,12 @@ public class OrderService {
             log.error("", e);
         }
     }
+    @Transactional
+    @ShardingTransactionType(TransactionType.XA)
+    public void orderSuccess()
+    {
 
+    }
     public void saveOrders() {
         int mount = 17;
 //        int mount = 100000;

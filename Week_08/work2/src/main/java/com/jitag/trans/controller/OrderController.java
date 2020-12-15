@@ -1,7 +1,7 @@
-package com.train.jitag.controller;
+package com.jitag.trans.controller;
 
-import com.train.jitag.domain.OrderInfo;
-import com.train.jitag.service.OrderService;
+import com.jitag.trans.domain.OrderInfo;
+import com.jitag.trans.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
